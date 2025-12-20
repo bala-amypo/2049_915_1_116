@@ -11,6 +11,4 @@ public interface PenaltyCalculationRepository extends JpaRepository<PenaltyCalcu
     List<PenaltyCalculation> findByContractId(Long contractId);
 
     Optional<PenaltyCalculation> findTopByContractIdOrderByCalculatedAtDesc(Long contractId);
-
-    Optional<PenaltyCalculation> findById(Long id);
 }

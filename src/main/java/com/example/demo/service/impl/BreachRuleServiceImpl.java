@@ -3,45 +3,57 @@ package com.example.demo.service.impl;
 import com.example.demo.entity.BreachRule;
 import com.example.demo.repository.BreachRuleRepository;
 import com.example.demo.service.BreachRuleService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class BreachRuleServiceImpl implements BreachRuleService {
 
-    private final BreachRuleRepository breachRuleRepository;
+    private final BreachRuleRepository repository;
+
+    public BreachRuleServiceImpl(BreachRuleRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public BreachRule createRule(BreachRule rule) {
-        rule.setActive(true);
-        return breachRuleRepository.save(rule);
+        return repository.save(rule);
     }
 
     @Override
     public BreachRule updateRule(Long id, BreachRule rule) {
         BreachRule existing = getRuleById(id);
-        rule.setId(existing.getId());
-        return breachRuleRepository.save(rule);
-    }
-
-    @Override
-    public BreachRule getRuleById(Long id) {
-        return breachRuleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Breach rule not found"));
+        existing.setRuleName(rule.getRuleName());
+        existing.setPenaltyPerDay(rule.getPenaltyPerDay());
+        existing.setMaxPenaltyPercentage(rule.getMaxPenaltyPercentage());
+        return repository.save(existing);
     }
 
     @Override
     public List<BreachRule> getAllRules() {
-        return breachRuleRepository.findAll();
+        return repository.findAll();
+    }
+
+    @Override
+    public BreachRule getRuleById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Rule not found"));
     }
 
     @Override
     public void deactivateRule(Long id) {
         BreachRule rule = getRuleById(id);
         rule.setActive(false);
-        breachRuleRepository.save(rule);
+        repository.save(rule);
+    }
+
+    @Override
+    public BreachRule getActiveDefaultOrFirst() {
+        return repository.findByActiveTrueAndIsDefaultRuleTrue()
+                .orElseGet(() ->
+                        repository.findFirstByActiveTrueOrderByIdAsc()
+                                .orElseThrow(() -> new RuntimeException("No active rule found"))
+                );
     }
 }

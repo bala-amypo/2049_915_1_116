@@ -1,11 +1,17 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "penalty_calculations")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PenaltyCalculation {
 
     @Id
@@ -13,12 +19,15 @@ public class PenaltyCalculation {
     private Long id;
 
     @ManyToOne(optional = false)
+    @JoinColumn(name = "contract_id")
     private Contract contract;
 
     @ManyToOne
+    @JoinColumn(name = "delivery_record_id")
     private DeliveryRecord deliveryRecord;
 
     @ManyToOne(optional = false)
+    @JoinColumn(name = "breach_rule_id")
     private BreachRule breachRule;
 
     @Column(nullable = false)
@@ -27,29 +36,11 @@ public class PenaltyCalculation {
     @Column(nullable = false)
     private BigDecimal calculatedPenalty;
 
-    @Column(nullable = false, updatable = false)
+    @Column(updatable = false)
     private LocalDateTime calculatedAt;
 
-    public PenaltyCalculation() {}
-
-    public PenaltyCalculation(Contract contract, BreachRule breachRule,
-                              Integer daysDelayed, BigDecimal calculatedPenalty) {
-        this.contract = contract;
-        this.breachRule = breachRule;
-        this.daysDelayed = daysDelayed;
-        this.calculatedPenalty = calculatedPenalty;
-    }
-
     @PrePersist
-    public void onCreate() {
+    public void prePersist() {
         this.calculatedAt = LocalDateTime.now();
     }
-
-    public Long getId() { return id; }
-    public Contract getContract() { return contract; }
-    public DeliveryRecord getDeliveryRecord() { return deliveryRecord; }
-    public BreachRule getBreachRule() { return breachRule; }
-    public Integer getDaysDelayed() { return daysDelayed; }
-    public BigDecimal getCalculatedPenalty() { return calculatedPenalty; }
-    public LocalDateTime getCalculatedAt() { return calculatedAt; }
 }

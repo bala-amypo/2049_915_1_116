@@ -1,20 +1,26 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 import java.math.BigDecimal;
 
 @Entity
 @Table(
     name = "breach_rules",
-    uniqueConstraints = @UniqueConstraint(columnNames = "rule_name")
+    uniqueConstraints = @UniqueConstraint(columnNames = "ruleName")
 )
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class BreachRule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "rule_name", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String ruleName;
 
     @Column(nullable = false)
@@ -24,27 +30,17 @@ public class BreachRule {
     private Double maxPenaltyPercentage;
 
     @Column(nullable = false)
-    private Boolean active = true;
+    private Boolean active;
 
-    private Boolean isDefaultRule = false;
+    private Boolean isDefaultRule;
 
-    public BreachRule() {}
-
-    public BreachRule(String ruleName, BigDecimal penaltyPerDay, Double maxPenaltyPercentage) {
-        this.ruleName = ruleName;
-        this.penaltyPerDay = penaltyPerDay;
-        this.maxPenaltyPercentage = maxPenaltyPercentage;
+    @PrePersist
+    public void prePersist() {
+        if (this.active == null) {
+            this.active = true;
+        }
+        if (this.isDefaultRule == null) {
+            this.isDefaultRule = false;
+        }
     }
-
-    public Long getId() { return id; }
-    public String getRuleName() { return ruleName; }
-    public void setRuleName(String ruleName) { this.ruleName = ruleName; }
-    public BigDecimal getPenaltyPerDay() { return penaltyPerDay; }
-    public void setPenaltyPerDay(BigDecimal penaltyPerDay) { this.penaltyPerDay = penaltyPerDay; }
-    public Double getMaxPenaltyPercentage() { return maxPenaltyPercentage; }
-    public void setMaxPenaltyPercentage(Double maxPenaltyPercentage) { this.maxPenaltyPercentage = maxPenaltyPercentage; }
-    public Boolean getActive() { return active; }
-    public void setActive(Boolean active) { this.active = active; }
-    public Boolean getIsDefaultRule() { return isDefaultRule; }
-    public void setIsDefaultRule(Boolean isDefaultRule) { this.isDefaultRule = isDefaultRule; }
 }

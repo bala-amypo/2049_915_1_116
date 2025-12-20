@@ -18,18 +18,7 @@ public class ContractController {
 
     @PostMapping
     public Contract createContract(@RequestBody Contract contract) {
-        return contractService.createContract(contract);
-    }
-
-    @PutMapping("/{id}")
-    public Contract updateContract(@PathVariable Long id,
-                                   @RequestBody Contract contract) {
-        return contractService.updateContract(id, contract);
-    }
-
-    @GetMapping("/{id}")
-    public Contract getContract(@PathVariable Long id) {
-        return contractService.getContractById(id);
+        return contractService.saveContract(contract);
     }
 
     @GetMapping
@@ -37,8 +26,8 @@ public class ContractController {
         return contractService.getAllContracts();
     }
 
-    @PutMapping("/{id}/status")
-    public Contract updateStatus(@PathVariable Long id) {
-        return contractService.updateContractStatus(id);
+    @GetMapping("/{id}")
+    public Contract getContractById(@PathVariable Long id) {
+        return contractService.getContractById(id);
     }
 }

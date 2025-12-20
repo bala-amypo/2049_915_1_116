@@ -1,11 +1,17 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "breach_reports")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class BreachReport {
 
     @Id
@@ -13,6 +19,7 @@ public class BreachReport {
     private Long id;
 
     @ManyToOne(optional = false)
+    @JoinColumn(name = "contract_id")
     private Contract contract;
 
     @Column(nullable = false)
@@ -22,25 +29,16 @@ public class BreachReport {
     private BigDecimal penaltyAmount;
 
     @Column(nullable = false)
-    private String reportStatus = "GENERATED";
+    private String reportStatus;
 
-    @Column(nullable = false, updatable = false)
+    @Column(updatable = false)
     private LocalDateTime generatedAt;
 
-    public BreachReport() {}
-
     @PrePersist
-    public void onCreate() {
+    public void prePersist() {
         this.generatedAt = LocalDateTime.now();
+        if (this.reportStatus == null) {
+            this.reportStatus = "GENERATED";
+        }
     }
-
-    public Long getId() { return id; }
-    public Contract getContract() { return contract; }
-    public void setContract(Contract contract) { this.contract = contract; }
-    public Integer getDaysDelayed() { return daysDelayed; }
-    public void setDaysDelayed(Integer daysDelayed) { this.daysDelayed = daysDelayed; }
-    public BigDecimal getPenaltyAmount() { return penaltyAmount; }
-    public void setPenaltyAmount(BigDecimal penaltyAmount) { this.penaltyAmount = penaltyAmount; }
-    public String getReportStatus() { return reportStatus; }
-    public LocalDateTime getGeneratedAt() { return generatedAt; }
 }

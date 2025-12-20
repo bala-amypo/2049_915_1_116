@@ -2,33 +2,44 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.Contract;
 import com.example.demo.service.ContractService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/contracts")
+@RequestMapping("/api/contracts")
+@RequiredArgsConstructor
 public class ContractController {
 
-    private final ContractService service;
-
-    public ContractController(ContractService service) {
-        this.service = service;
-    }
+    private final ContractService contractService;
 
     @PostMapping
-    public ResponseEntity<Contract> create(@RequestBody Contract c) {
-        return ResponseEntity.ok(service.createContract(c));
+    public ResponseEntity<Contract> create(@RequestBody Contract contract) {
+        return ResponseEntity.ok(contractService.createContract(contract));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Contract> update(
+            @PathVariable Long id,
+            @RequestBody Contract contract) {
+        return ResponseEntity.ok(contractService.updateContract(id, contract));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Contract> get(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getContractById(id));
+    public ResponseEntity<Contract> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(contractService.getContractById(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<Contract>> all() {
-        return ResponseEntity.ok(service.getAllContracts());
+    public ResponseEntity<List<Contract>> getAll() {
+        return ResponseEntity.ok(contractService.getAllContracts());
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<Void> updateStatus(@PathVariable Long id) {
+        contractService.updateContractStatus(id);
+        return ResponseEntity.ok().build();
     }
 }

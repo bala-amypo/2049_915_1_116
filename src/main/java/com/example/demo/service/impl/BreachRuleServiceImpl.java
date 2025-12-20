@@ -10,50 +10,24 @@ import java.util.List;
 @Service
 public class BreachRuleServiceImpl implements BreachRuleService {
 
-    private final BreachRuleRepository repository;
+    private final BreachRuleRepository breachRuleRepository;
 
-    public BreachRuleServiceImpl(BreachRuleRepository repository) {
-        this.repository = repository;
+    public BreachRuleServiceImpl(BreachRuleRepository breachRuleRepository) {
+        this.breachRuleRepository = breachRuleRepository;
     }
 
     @Override
-    public BreachRule createRule(BreachRule rule) {
-        return repository.save(rule);
+    public BreachRule saveBreachRule(BreachRule rule) {
+        return breachRuleRepository.save(rule);
     }
 
     @Override
-    public BreachRule updateRule(Long id, BreachRule rule) {
-        BreachRule existing = getRuleById(id);
-        existing.setRuleName(rule.getRuleName());
-        existing.setPenaltyPerDay(rule.getPenaltyPerDay());
-        existing.setMaxPenaltyPercentage(rule.getMaxPenaltyPercentage());
-        return repository.save(existing);
+    public List<BreachRule> getAllBreachRules() {
+        return breachRuleRepository.findAll();
     }
 
     @Override
-    public List<BreachRule> getAllRules() {
-        return repository.findAll();
-    }
-
-    @Override
-    public BreachRule getRuleById(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Rule not found"));
-    }
-
-    @Override
-    public void deactivateRule(Long id) {
-        BreachRule rule = getRuleById(id);
-        rule.setActive(false);
-        repository.save(rule);
-    }
-
-    @Override
-    public BreachRule getActiveDefaultOrFirst() {
-        return repository.findByActiveTrueAndIsDefaultRuleTrue()
-                .orElseGet(() ->
-                        repository.findFirstByActiveTrueOrderByIdAsc()
-                                .orElseThrow(() -> new RuntimeException("No active rule found"))
-                );
+    public BreachRule getBreachRuleById(Long id) {
+        return breachRuleRepository.findById(id).orElse(null);
     }
 }

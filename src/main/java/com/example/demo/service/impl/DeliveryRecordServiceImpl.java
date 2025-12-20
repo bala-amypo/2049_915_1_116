@@ -10,31 +10,24 @@ import java.util.List;
 @Service
 public class DeliveryRecordServiceImpl implements DeliveryRecordService {
 
-    private final DeliveryRecordRepository repository;
+    private final DeliveryRecordRepository deliveryRecordRepository;
 
-    public DeliveryRecordServiceImpl(DeliveryRecordRepository repository) {
-        this.repository = repository;
+    public DeliveryRecordServiceImpl(DeliveryRecordRepository deliveryRecordRepository) {
+        this.deliveryRecordRepository = deliveryRecordRepository;
     }
 
     @Override
-    public DeliveryRecord createDeliveryRecord(DeliveryRecord record) {
-        return repository.save(record);
+    public DeliveryRecord saveDeliveryRecord(DeliveryRecord record) {
+        return deliveryRecordRepository.save(record);
     }
 
     @Override
-    public List<DeliveryRecord> getDeliveryRecordsForContract(Long contractId) {
-        return repository.findByContractId(contractId);
+    public List<DeliveryRecord> getAllDeliveryRecords() {
+        return deliveryRecordRepository.findAll();
     }
 
     @Override
-    public DeliveryRecord getLatestDeliveryRecord(Long contractId) {
-        return repository.findTopByContractIdOrderByDeliveryDateDesc(contractId)
-                .orElseThrow(() -> new RuntimeException("No delivery record found"));
-    }
-
-    @Override
-    public DeliveryRecord getRecordById(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Delivery record not found"));
+    public DeliveryRecord getDeliveryRecordById(Long id) {
+        return deliveryRecordRepository.findById(id).orElse(null);
     }
 }

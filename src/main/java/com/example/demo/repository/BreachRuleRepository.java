@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface BreachRuleRepository extends JpaRepository<BreachRule, Long> {
 
-    Optional<BreachRule> findByRuleName(String ruleName);
+    Optional<BreachRule> findByActiveTrueAndIsDefaultRuleTrue();
 
-    Optional<BreachRule> findFirstByActiveTrueOrderByIsDefaultRuleDesc();
+    Optional<BreachRule> findFirstByActiveTrueOrderByIdAsc();
 }

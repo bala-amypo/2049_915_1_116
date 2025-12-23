@@ -19,7 +19,7 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public Contract createContract(Contract contract) {
 
-        // ✅ FIX: correct getters
+       
         contract.setName(contract.getName());
         contract.setValue(contract.getValue());
 
@@ -42,7 +42,7 @@ public class ContractServiceImpl implements ContractService {
 
         Contract existing = getContractById(id);
 
-        // ✅ FIX
+       
         existing.setName(contract.getName());
         existing.setValue(contract.getValue());
 

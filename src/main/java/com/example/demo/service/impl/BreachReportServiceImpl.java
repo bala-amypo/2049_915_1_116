@@ -18,19 +18,33 @@ public class BreachReportServiceImpl implements BreachReportService {
     private PenaltyCalculationRepository penaltyCalculationRepository;
     private ContractRepository contractRepository;
 
+    public BreachReportServiceImpl() { }
+
+    // Setter injection for tests
+    public void setBreachReportRepository(BreachReportRepository breachReportRepository) {
+        this.breachReportRepository = breachReportRepository;
+    }
+
+    public void setPenaltyCalculationRepository(PenaltyCalculationRepository penaltyCalculationRepository) {
+        this.penaltyCalculationRepository = penaltyCalculationRepository;
+    }
+
+    public void setContractRepository(ContractRepository contractRepository) {
+        this.contractRepository = contractRepository;
+    }
+
     @Override
     public BreachReport generateReport(Long contractId) {
-        Contract c = contractRepository.findById(contractId)
+        Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new RuntimeException("Contract not found"));
 
-        PenaltyCalculation calc = penaltyCalculationRepository
-                .findTopByContractIdOrderByCalculatedAtDesc(contractId)
-                .orElseThrow(() -> new RuntimeException("No penalty calculation"));
+        PenaltyCalculation calculation = penaltyCalculationRepository.findTopByContractIdOrderByCalculatedAtDesc(contractId)
+                .orElseThrow(() -> new RuntimeException("No penalty calculation found for contract"));
 
         BreachReport report = BreachReport.builder()
-                .contract(c)
-                .daysDelayed(calc.getDaysDelayed())
-                .penaltyAmount(calc.getCalculatedPenalty())
+                .contract(contract)
+                .daysDelayed(calculation.getDaysDelayed())
+                .penaltyAmount(calculation.getCalculatedPenalty())
                 .build();
 
         return breachReportRepository.save(report);
@@ -44,18 +58,5 @@ public class BreachReportServiceImpl implements BreachReportService {
     @Override
     public List<BreachReport> getAllReports() {
         return breachReportRepository.findAll();
-    }
-
-    // Setter injection for tests
-    public void setBreachReportRepository(BreachReportRepository breachReportRepository) {
-        this.breachReportRepository = breachReportRepository;
-    }
-
-    public void setPenaltyCalculationRepository(PenaltyCalculationRepository penaltyCalculationRepository) {
-        this.penaltyCalculationRepository = penaltyCalculationRepository;
-    }
-
-    public void setContractRepository(ContractRepository contractRepository) {
-        this.contractRepository = contractRepository;
     }
 }

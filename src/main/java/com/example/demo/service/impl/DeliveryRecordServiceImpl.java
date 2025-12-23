@@ -16,17 +16,34 @@ public class DeliveryRecordServiceImpl implements DeliveryRecordService {
     private DeliveryRecordRepository deliveryRecordRepository;
     private ContractRepository contractRepository;
 
+    public DeliveryRecordServiceImpl() { }
+
+    // Setter injection for tests
+    public void setDeliveryRecordRepository(DeliveryRecordRepository deliveryRecordRepository) {
+        this.deliveryRecordRepository = deliveryRecordRepository;
+    }
+
+    public void setContractRepository(ContractRepository contractRepository) {
+        this.contractRepository = contractRepository;
+    }
+
     @Override
     public DeliveryRecord createDeliveryRecord(DeliveryRecord record) {
+        Contract contract = record.getContract();
+
+        if (contract == null || contract.getId() == null) {
+            throw new IllegalArgumentException("Delivery record must be linked to a valid contract");
+        }
+
+        Contract existingContract = contractRepository.findById(contract.getId())
+                .orElseThrow(() -> new RuntimeException("Contract not found"));
+
         if (record.getDeliveryDate().isAfter(LocalDate.now())) {
             throw new IllegalArgumentException("Delivery date cannot be in the future");
         }
-        if (record.getContract() == null || record.getContract().getId() == null) {
-            throw new IllegalArgumentException("Contract must be specified");
-        }
-        Contract c = contractRepository.findById(record.getContract().getId())
-                .orElseThrow(() -> new RuntimeException("Contract not found"));
-        record.setContract(c);
+
+        record.setContract(existingContract);
+
         return deliveryRecordRepository.save(record);
     }
 
@@ -39,20 +56,11 @@ public class DeliveryRecordServiceImpl implements DeliveryRecordService {
     @Override
     public DeliveryRecord getLatestDeliveryRecord(Long contractId) {
         return deliveryRecordRepository.findFirstByContractIdOrderByDeliveryDateDesc(contractId)
-                .orElseThrow(() -> new RuntimeException("No delivery records found"));
+                .orElseThrow(() -> new RuntimeException("No delivery records found for contract"));
     }
 
     @Override
     public List<DeliveryRecord> getDeliveryRecordsForContract(Long contractId) {
         return deliveryRecordRepository.findByContractIdOrderByDeliveryDateAsc(contractId);
-    }
-
-    // Setter injection for tests
-    public void setDeliveryRecordRepository(DeliveryRecordRepository deliveryRecordRepository) {
-        this.deliveryRecordRepository = deliveryRecordRepository;
-    }
-
-    public void setContractRepository(ContractRepository contractRepository) {
-        this.contractRepository = contractRepository;
     }
 }

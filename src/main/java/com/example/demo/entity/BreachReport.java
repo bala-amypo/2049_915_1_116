@@ -2,10 +2,11 @@ package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.math.BigDecimal;
 
 @Entity
-@Data
+@Getter @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,6 +20,5 @@ public class BreachReport {
     private Contract contract;
 
     private Integer daysDelayed;
-
     private BigDecimal penaltyAmount;
 }

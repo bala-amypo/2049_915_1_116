@@ -2,10 +2,11 @@ package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.math.BigDecimal;
 
 @Entity
-@Data
+@Getter @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,12 +17,8 @@ public class BreachRule {
     private Long id;
 
     private String ruleName;
-
     private BigDecimal penaltyPerDay;
-
     private Double maxPenaltyPercentage;
-
     private boolean active;
-
     private boolean isDefaultRule;
 }

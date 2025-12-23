@@ -1,13 +1,25 @@
 package com.example.demo.repository;
 
 import com.example.demo.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+// Simple in-memory repository for testing
+@Repository
+public class UserRepository {
 
-    Optional<User> findByEmail(String email);
+    private final Map<String, User> users = new HashMap<>();
+    private Long idCounter = 1L;
 
-    boolean existsByEmail(String email);
+    public User save(User user) {
+        user.setId(idCounter++);
+        users.put(user.getEmail(), user);
+        return user;
+    }
+
+    public User findByEmail(String email) {
+        return users.get(email);
+    }
 }

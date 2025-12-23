@@ -1,17 +1,24 @@
 package com.example.demo.entity;
 
+import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
 
-@Getter
-@Setter
+@Entity
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeliveryRecord {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long contractId;
-    private int expectedQuantity;
-    private int deliveredQuantity;
+
     private LocalDate deliveryDate;
+
+    @ManyToOne
+    private Contract contract;
+
+    private String notes;
 }

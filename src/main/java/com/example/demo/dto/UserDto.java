@@ -8,9 +8,6 @@ public class UserDto {
     private String email;
     private Set<String> roles;
 
-    public UserDto() {
-    }
-
     public Long getId() {
         return id;
     }
@@ -22,7 +19,7 @@ public class UserDto {
     public String getEmail() {
         return email;
     }
-    
+
     public void setEmail(String email) {
         this.email = email;
     }

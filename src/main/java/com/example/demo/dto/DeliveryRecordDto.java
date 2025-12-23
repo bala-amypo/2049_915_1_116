@@ -1,27 +1,43 @@
-package com.example.demo.entity;
-
-import jakarta.persistence.*;
-import lombok.*;
+package com.example.demo.dto;
 
 import java.time.LocalDate;
 
-@Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class DeliveryRecord {
+public class DeliveryRecordDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "contract_id")
-    private Contract contract;
-
+    private Long contractId;
     private LocalDate deliveryDate;
+    private int daysDelayed;
 
-    private boolean delayed;
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getContractId() {
+        return contractId;
+    }
+
+    public void setContractId(Long contractId) {
+        this.contractId = contractId;
+    }
+
+    public LocalDate getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public void setDeliveryDate(LocalDate deliveryDate) {
+        this.deliveryDate = deliveryDate;
+    }
+
+    public int getDaysDelayed() {
+        return daysDelayed;
+    }
+
+    public void setDaysDelayed(int daysDelayed) {
+        this.daysDelayed = daysDelayed;
+    }
 }

@@ -1,6 +1,5 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.dto.AuthRequestDto;
 import com.example.demo.dto.AuthResponseDto;
 import com.example.demo.entity.User;
 import com.example.demo.exception.BadRequestException;
@@ -18,23 +17,21 @@ public class AuthServiceImpl implements AuthService {
     private UserRepository userRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
-    @Override
-    public AuthResponseDto login(AuthRequestDto request) {
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-        User user = userRepository.findByUsername(request.getUsername())
+    @Override
+    public AuthResponseDto login(String username, String password) {
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BadRequestException("Invalid username or password"));
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new BadRequestException("Invalid username or password");
         }
 
-        String token = jwtTokenProvider.generateToken(user.getUsername());
-
-        return new AuthResponseDto(token, user.getUsername());
+        String token = jwtTokenProvider.generateToken(username);
+        return new AuthResponseDto(token, username);
     }
 }

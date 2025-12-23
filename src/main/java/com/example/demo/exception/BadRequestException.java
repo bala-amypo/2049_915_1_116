@@ -1,8 +1,9 @@
 package com.example.demo.exception;
 
-public class BadRequestAuthentication extends RuntimeException {
+public class BadRequestException extends RuntimeException {
 
-    public BadRequestAuthentication(String message) {
+    public BadRequestException(String message) {
         super(message);
     }
 }
+

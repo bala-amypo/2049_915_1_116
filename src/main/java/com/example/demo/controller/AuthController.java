@@ -5,6 +5,7 @@ import com.example.demo.dto.AuthResponse;
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.security.JwtTokenProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,47 +15,53 @@ import java.util.Set;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
-    private final JwtTokenProvider jwtTokenProvider;
+    @Autowired
+    private UserRepository userRepository;
 
-    public AuthController(UserRepository userRepository,
-                          BCryptPasswordEncoder passwordEncoder,
-                          JwtTokenProvider jwtTokenProvider) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
-    }
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
 
-    // ---------------- REGISTER ----------------
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    // ================= REGISTER =================
     @PostMapping("/register")
     public AuthResponse register(@RequestBody AuthRequest request) {
 
+        // ✔ FIX: existsByEmail must exist in repository
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
 
+        // ✔ FIX: roles must be Set<String>
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .roles(Set.of("ROLE_USER"))
                 .build();
 
-        userRepository.save(user);
+        user = userRepository.save(user);
 
+        // ✔ FIX: generateToken expects Set<String>
         String token = jwtTokenProvider.generateToken(
                 user.getId(),
                 user.getEmail(),
                 user.getRoles()
         );
 
-        return new AuthResponse(token);
+        // ✔ FIX: use correct AuthResponse constructor
+        return new AuthResponse(
+                user.getId(),
+                user.getEmail(),
+                token,
+                String.join(",", user.getRoles())
+        );
     }
 
-    // ---------------- LOGIN ----------------
+    // ================= LOGIN =================
     @PostMapping("/login")
     public AuthResponse login(@RequestBody AuthRequest request) {
 
+        // ✔ FIX: orElseThrow must be on Optional<User>
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Invalid credentials"));
 
@@ -68,6 +75,11 @@ public class AuthController {
                 user.getRoles()
         );
 
-        return new AuthResponse(token);
+        return new AuthResponse(
+                user.getId(),
+                user.getEmail(),
+                token,
+                String.join(",", user.getRoles())
+        );
     }
 }

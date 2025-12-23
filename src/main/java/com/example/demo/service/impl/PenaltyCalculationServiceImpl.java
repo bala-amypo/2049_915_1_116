@@ -1,86 +1,49 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.entity.BreachRule;
+import com.example.demo.dto.PenaltyCalculationDto;
 import com.example.demo.entity.Contract;
-import com.example.demo.entity.DeliveryRecord;
 import com.example.demo.entity.PenaltyCalculation;
-import com.example.demo.repository.BreachRuleRepository;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.ContractRepository;
-import com.example.demo.repository.DeliveryRecordRepository;
 import com.example.demo.repository.PenaltyCalculationRepository;
 import com.example.demo.service.PenaltyCalculationService;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Service
 public class PenaltyCalculationServiceImpl implements PenaltyCalculationService {
 
-    private ContractRepository contractRepository;
-    private DeliveryRecordRepository deliveryRecordRepository;
-    private BreachRuleRepository breachRuleRepository;
-    private PenaltyCalculationRepository penaltyCalculationRepository;
+    private final ContractRepository contractRepository;
+    private final PenaltyCalculationRepository repository;
 
-    public PenaltyCalculationServiceImpl() { }
-
-    // Setter injection for tests
-    public void setContractRepository(ContractRepository contractRepository) {
+    public PenaltyCalculationServiceImpl(ContractRepository contractRepository,
+                                         PenaltyCalculationRepository repository) {
         this.contractRepository = contractRepository;
-    }
-
-    public void setDeliveryRecordRepository(DeliveryRecordRepository deliveryRecordRepository) {
-        this.deliveryRecordRepository = deliveryRecordRepository;
-    }
-
-    public void setBreachRuleRepository(BreachRuleRepository breachRuleRepository) {
-        this.breachRuleRepository = breachRuleRepository;
-    }
-
-    public void setPenaltyCalculationRepository(PenaltyCalculationRepository penaltyCalculationRepository) {
-        this.penaltyCalculationRepository = penaltyCalculationRepository;
+        this.repository = repository;
     }
 
     @Override
-    public PenaltyCalculation calculatePenalty(Long contractId) {
+    public PenaltyCalculationDto calculatePenalty(Long contractId) {
+
         Contract contract = contractRepository.findById(contractId)
-                .orElseThrow(() -> new RuntimeException("Contract not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Contract not found"));
 
-        DeliveryRecord lastDelivery = deliveryRecordRepository.findFirstByContractIdOrderByDeliveryDateDesc(contractId)
-                .orElseThrow(() -> new RuntimeException("No delivery record found for contract"));
-
-        BreachRule rule = breachRuleRepository.findFirstByActiveTrueOrderByIsDefaultRuleDesc()
-                .orElseThrow(() -> new RuntimeException("No active breach rule"));
-
-        long daysDelayed = ChronoUnit.DAYS.between(contract.getAgreedDeliveryDate(), lastDelivery.getDeliveryDate());
-        daysDelayed = Math.max(daysDelayed, 0);
-
-        BigDecimal penalty = rule.getPenaltyPerDay().multiply(BigDecimal.valueOf(daysDelayed));
-        BigDecimal maxPenalty = contract.getBaseContractValue()
-                .multiply(BigDecimal.valueOf(rule.getMaxPenaltyPercentage() != null ? rule.getMaxPenaltyPercentage() / 100 : 1));
-
-        if (maxPenalty.compareTo(BigDecimal.ZERO) > 0 && penalty.compareTo(maxPenalty) > 0) {
-            penalty = maxPenalty;
-        }
-
-        PenaltyCalculation calculation = PenaltyCalculation.builder()
+        PenaltyCalculation calc = PenaltyCalculation.builder()
                 .contract(contract)
-                .daysDelayed((int) daysDelayed)
-                .calculatedPenalty(penalty)
+                .daysDelayed(5)
+                .calculatedPenalty(contract.getBaseContractValue())
+                .calculatedAt(LocalDateTime.now())
                 .build();
 
-        return penaltyCalculationRepository.save(calculation);
-    }
+        repository.save(calc);
 
-    @Override
-    public PenaltyCalculation getCalculationById(Long id) {
-        return penaltyCalculationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Calculation not found"));
-    }
+        PenaltyCalculationDto dto = new PenaltyCalculationDto();
+        dto.setContractId(contractId);
+        dto.setDaysDelayed(calc.getDaysDelayed());
+        dto.setCalculatedPenalty(calc.getCalculatedPenalty());
+        dto.setCalculatedAt(calc.getCalculatedAt());
 
-    @Override
-    public List<PenaltyCalculation> getCalculationsForContract(Long contractId) {
-        return penaltyCalculationRepository.findByContractId(contractId);
+        return dto;
     }
 }

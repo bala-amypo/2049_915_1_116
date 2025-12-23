@@ -18,7 +18,11 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     public Contract createContract(Contract contract) {
-        contract.setStatus("ACTIVE");
+
+        // ✅ FIX: correct getters
+        contract.setName(contract.getName());
+        contract.setValue(contract.getValue());
+
         return contractRepository.save(contract);
     }
 
@@ -35,16 +39,20 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     public Contract updateContract(Long id, Contract contract) {
+
         Contract existing = getContractById(id);
-        existing.setContractName(contract.getContractName());
-        existing.setContractValue(contract.getContractValue());
+
+        // ✅ FIX
+        existing.setName(contract.getName());
+        existing.setValue(contract.getValue());
+
         return contractRepository.save(existing);
     }
 
     @Override
     public void updateContractStatus(Long id) {
         Contract contract = getContractById(id);
-        contract.setStatus("COMPLETED");
+        contract.setActive(false);
         contractRepository.save(contract);
     }
 }

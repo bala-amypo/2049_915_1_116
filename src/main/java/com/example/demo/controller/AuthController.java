@@ -45,12 +45,13 @@ public class AuthController {
                 user.getRoles()
         );
 
-        return new AuthResponse(token);
+       
+        return new AuthResponse(token, "Bearer");
     }
 
     @PostMapping("/login")
     public AuthResponse login(@RequestBody AuthRequest request) {
-        // Simplified login for project/demo
+
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Invalid credentials"));
 
@@ -64,6 +65,7 @@ public class AuthController {
                 user.getRoles()
         );
 
-        return new AuthResponse(token);
+       
+        return new AuthResponse(token, "Bearer");
     }
 }

@@ -31,8 +31,9 @@ public class BreachRuleController {
         return breachRuleService.getAllRules();
     }
 
+    
     @GetMapping("/active")
     public BreachRule getActive() {
-        return breachRuleService.getActiveDefaultOrFirst();
+        return breachRuleService.getActiveRule();
     }
 }

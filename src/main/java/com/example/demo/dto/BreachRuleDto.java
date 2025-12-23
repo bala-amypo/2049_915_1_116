@@ -11,7 +11,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BreachRule {
+public class BreachRuleDto {   
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

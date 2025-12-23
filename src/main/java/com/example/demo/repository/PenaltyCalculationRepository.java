@@ -1,11 +1,29 @@
-package com.example.demo.repository;
+package com.example.demo.entity;
 
-import com.example.demo.entity.PenaltyCalculation;
-import org.springframework.data.jpa.repository.JpaRepository;
+import jakarta.persistence.*;
+import lombok.*;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
-public interface PenaltyCalculationRepository extends JpaRepository<PenaltyCalculation, Long> {
+@Entity
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PenaltyCalculation {
 
-    List<PenaltyCalculation> findByContractId(Long contractId);
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "contract_id", nullable = false)
+    private Contract contract;
+
+    private Integer daysDelayed;
+
+    private BigDecimal calculatedPenalty;
+
+    private LocalDateTime calculatedAt;
 }

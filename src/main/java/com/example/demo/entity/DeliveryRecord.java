@@ -1,51 +1,27 @@
 package com.example.demo.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+import lombok.*;
+
 import java.time.LocalDate;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class DeliveryRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long contractId;
+    @ManyToOne
+    @JoinColumn(name = "contract_id")
+    private Contract contract;
+
     private LocalDate deliveryDate;
-    private String notes;
 
-    public DeliveryRecord() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-    
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getContractId() {
-        return contractId;
-    }
-    
-    public void setContractId(Long contractId) {
-        this.contractId = contractId;
-    }
-
-    public LocalDate getDeliveryDate() {
-        return deliveryDate;
-    }
-    
-    public void setDeliveryDate(LocalDate deliveryDate) {
-        this.deliveryDate = deliveryDate;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-    
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
+    private boolean delayed;
 }

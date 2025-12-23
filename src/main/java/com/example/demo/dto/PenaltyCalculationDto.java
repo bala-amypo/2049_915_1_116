@@ -1,37 +1,28 @@
-package com.example.demo.dto;
+package com.example.demo.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
-public class PenaltyCalculationDto {
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class PenaltyCalculation {
 
-    private Long contractId;
-    private Integer daysDelayed;
-    private BigDecimal calculatedPenalty;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public PenaltyCalculationDto() {
-    }
+    @ManyToOne
+    @JoinColumn(name = "contract_id")
+    private Contract contract;
 
-    public Long getContractId() {
-        return contractId;
-    }
+    private BigDecimal penaltyAmount;
 
-    public void setContractId(Long contractId) {
-        this.contractId = contractId;
-    }
-
-    public Integer getDaysDelayed() {
-        return daysDelayed;
-    }
-
-    public void setDaysDelayed(Integer daysDelayed) {
-        this.daysDelayed = daysDelayed;
-    }
-
-    public BigDecimal getCalculatedPenalty() {
-        return calculatedPenalty;
-    }
-
-    public void setCalculatedPenalty(BigDecimal calculatedPenalty) {
-        this.calculatedPenalty = calculatedPenalty;
-    }
+    private LocalDateTime calculatedAt;
 }

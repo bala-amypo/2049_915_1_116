@@ -1,14 +1,8 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.PenaltyCalculation;
-
-import java.util.List;
+import com.example.demo.dto.PenaltyCalculationDto;
 
 public interface PenaltyCalculationService {
 
-    PenaltyCalculation calculatePenalty(Long contractId);
-
-    PenaltyCalculation getCalculationById(Long id);
-
-    List<PenaltyCalculation> getCalculationsForContract(Long contractId);
+    PenaltyCalculationDto calculatePenalty(Long contractId);
 }

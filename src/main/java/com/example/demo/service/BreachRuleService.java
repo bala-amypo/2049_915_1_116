@@ -1,16 +1,14 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.BreachRule;
+import com.example.demo.dto.BreachRuleDto;
 
 import java.util.List;
 
 public interface BreachRuleService {
 
-    BreachRule createRule(BreachRule rule);
+    BreachRuleDto createRule(BreachRuleDto dto);
 
-    BreachRule getActiveDefaultOrFirst();
+    List<BreachRuleDto> getActiveRules();
 
     void deactivateRule(Long id);
-
-    List<BreachRule> getAllRules();
 }

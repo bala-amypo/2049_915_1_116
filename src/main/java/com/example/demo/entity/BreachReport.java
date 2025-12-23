@@ -1,17 +1,24 @@
 package com.example.demo.entity;
 
+import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDate;
+import java.math.BigDecimal;
 
-@Getter
-@Setter
+@Entity
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class BreachReport {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String reportName;
-    private String description;
-    private LocalDate reportDate;
-    private boolean active;
+
+    @ManyToOne
+    private Contract contract;
+
+    private Integer daysDelayed;
+
+    private BigDecimal penaltyAmount;
 }

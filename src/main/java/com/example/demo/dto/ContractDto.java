@@ -1,65 +1,30 @@
-package com.example.demo.dto;
+package com.example.demo.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class ContractDto {
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Contract {
 
-    private String contractNumber;
-    private String title;
-    private String counterpartyName;
-    private LocalDate agreedDeliveryDate;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String contractName;
+
     private BigDecimal baseContractValue;
-    private String status;
 
-    public ContractDto() {
-    }
+    private LocalDate startDate;
 
-    public String getContractNumber() {
-        return contractNumber;
-    }
+    private LocalDate endDate;
 
-    public void setContractNumber(String contractNumber) {
-        this.contractNumber = contractNumber;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getCounterpartyName() {
-        return counterpartyName;
-    }
-
-    public void setCounterpartyName(String counterpartyName) {
-        this.counterpartyName = counterpartyName;
-    }
-
-    public LocalDate getAgreedDeliveryDate() {
-        return agreedDeliveryDate;
-    }
-
-    public void setAgreedDeliveryDate(LocalDate agreedDeliveryDate) {
-        this.agreedDeliveryDate = agreedDeliveryDate;
-    }
-
-    public BigDecimal getBaseContractValue() {
-        return baseContractValue;
-    }
-
-    public void setBaseContractValue(BigDecimal baseContractValue) {
-        this.baseContractValue = baseContractValue;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
+    private boolean active;
 }

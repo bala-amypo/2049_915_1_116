@@ -1,31 +1,13 @@
 package com.example.demo.dto;
 
-public class AuthResponseDto {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
+@AllArgsConstructor
+public class AuthResponseDto {
     private String token;
     private String username;
-
-    public AuthResponseDto() {
-    }
-
-    public AuthResponseDto(String token, String username) {
-        this.token = token;
-        this.username = username;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
 }

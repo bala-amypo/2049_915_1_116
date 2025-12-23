@@ -3,10 +3,9 @@ package com.example.demo.controller;
 import com.example.demo.dto.AuthRequest;
 import com.example.demo.dto.AuthResponse;
 import com.example.demo.entity.User;
-import com.example.demo.repository.UserRepository;
 import com.example.demo.security.JwtTokenProvider;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import com.example.demo.service.AuthService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
@@ -15,71 +14,44 @@ import java.util.Set;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final AuthService authService;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-    // ================= REGISTER =================
-    @PostMapping("/register")
-    public AuthResponse register(@RequestBody AuthRequest request) {
-
-        // ✔ FIX: existsByEmail must exist in repository
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
-        }
-
-        // ✔ FIX: roles must be Set<String>
-        User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .roles(Set.of("ROLE_USER"))
-                .build();
-
-        user = userRepository.save(user);
-
-        // ✔ FIX: generateToken expects Set<String>
-        String token = jwtTokenProvider.generateToken(
-                user.getId(),
-                user.getEmail(),
-                user.getRoles()
-        );
-
-        // ✔ FIX: use correct AuthResponse constructor
-        return new AuthResponse(
-                user.getId(),
-                user.getEmail(),
-                token,
-                String.join(",", user.getRoles())
-        );
+    public AuthController(AuthService authService,
+                          JwtTokenProvider jwtTokenProvider) {
+        this.authService = authService;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    // ================= LOGIN =================
-    @PostMapping("/login")
-    public AuthResponse login(@RequestBody AuthRequest request) {
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> register(@RequestBody AuthRequest request) {
 
-        // ✔ FIX: orElseThrow must be on Optional<User>
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+        User user = authService.register(request);
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
-        }
+        Set<String> roles = user.getRoles();   // ✅ MUST be Set<String>
 
         String token = jwtTokenProvider.generateToken(
                 user.getId(),
                 user.getEmail(),
-                user.getRoles()
+                roles
         );
 
-        return new AuthResponse(
+        return ResponseEntity.ok(new AuthResponse(token));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+
+        User user = authService.login(request);
+
+        Set<String> roles = user.getRoles();   // ✅ NOT String
+
+        String token = jwtTokenProvider.generateToken(
                 user.getId(),
                 user.getEmail(),
-                token,
-                String.join(",", user.getRoles())
+                roles
         );
+
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 }

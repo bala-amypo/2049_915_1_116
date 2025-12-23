@@ -28,7 +28,7 @@ public class AuthController {
 
         User user = authService.register(request);
 
-        Set<String> roles = user.getRoles();   // ✅ MUST be Set<String>
+        Set<String> roles = user.getRoles();
 
         String token = jwtTokenProvider.generateToken(
                 user.getId(),
@@ -36,7 +36,14 @@ public class AuthController {
                 roles
         );
 
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(
+                new AuthResponse(
+                        user.getId(),
+                        user.getEmail(),
+                        token,
+                        String.join(",", roles)
+                )
+        );
     }
 
     @PostMapping("/login")
@@ -44,7 +51,7 @@ public class AuthController {
 
         User user = authService.login(request);
 
-        Set<String> roles = user.getRoles();   // ✅ NOT String
+        Set<String> roles = user.getRoles();
 
         String token = jwtTokenProvider.generateToken(
                 user.getId(),
@@ -52,6 +59,13 @@ public class AuthController {
                 roles
         );
 
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(
+                new AuthResponse(
+                        user.getId(),
+                        user.getEmail(),
+                        token,
+                        String.join(",", roles)
+                )
+        );
     }
 }

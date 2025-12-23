@@ -12,8 +12,12 @@ import java.util.Set;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private UserRepository userRepository;
-    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    public AuthServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public User register(AuthRequest request) {
@@ -25,7 +29,7 @@ public class AuthServiceImpl implements AuthService {
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .roles(Set.of("ROLE_USER"))
+                .roles(Set.of("ROLE_USER"))   // ✅ Set<String>
                 .build();
 
         return userRepository.save(user);
@@ -35,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
     public User login(AuthRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid credentials")); // ✅ FIX
+                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid credentials");

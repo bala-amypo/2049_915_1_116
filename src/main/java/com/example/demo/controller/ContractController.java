@@ -32,7 +32,8 @@ public class ContractController {
     }
 
     @PutMapping("/{id}")
-    public Contract update(@PathVariable Long id, @RequestBody Contract contract) {
+    public Contract update(@PathVariable Long id,
+                           @RequestBody Contract contract) {
         return contractService.updateContract(id, contract);
     }
 

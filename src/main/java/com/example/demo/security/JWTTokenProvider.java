@@ -8,7 +8,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
-public class JwtTokenProvider {
+public class JWTTokenProvider
+ {
 
     private String jwtSecret = "defaultSecret"; // will be injected in tests
     private long jwtExpirationMs = 3600000L;   // will be injected in tests

@@ -1,30 +1,28 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Contract {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String contractName;
-
+    private String title;
+    private String counterpartyName;
+    private LocalDate agreedDeliveryDate;
     private BigDecimal baseContractValue;
+    private String status;
 
-    private LocalDate startDate;
+    public Long getId() { return id; }
+    public String getTitle() { return title; }
+    public String getCounterpartyName() { return counterpartyName; }
+    public LocalDate getAgreedDeliveryDate() { return agreedDeliveryDate; }
+    public BigDecimal getBaseContractValue() { return baseContractValue; }
+    public String getStatus() { return status; }
 
-    private LocalDate endDate;
-
-    private boolean active;
+    public void setStatus(String status) { this.status = status; }
 }

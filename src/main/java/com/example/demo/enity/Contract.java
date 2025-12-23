@@ -1,23 +1,19 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
+import java.time.LocalDate;
+
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Contract {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String contractName;
-
-    private Double contractValue;
-
+    private double contractValue;
     private String status;
+    private LocalDate startDate;
+    private LocalDate endDate;
 }

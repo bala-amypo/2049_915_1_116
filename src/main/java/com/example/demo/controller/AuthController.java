@@ -13,26 +13,23 @@ public class AuthController {
 
     private final AuthService authService;
 
-    // Constructor Injection (as required)
     public AuthController(AuthService authService) {
         this.authService = authService;
     }
 
-    // ---------------- REGISTER ----------------
+    // REGISTER
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(
             @RequestBody RegisterRequest request) {
 
-        AuthResponse response = authService.register(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(authService.register(request));
     }
 
-    // ---------------- LOGIN ----------------
+    // LOGIN
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
             @RequestBody AuthRequest request) {
 
-        AuthResponse response = authService.login(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(authService.login(request));
     }
 }

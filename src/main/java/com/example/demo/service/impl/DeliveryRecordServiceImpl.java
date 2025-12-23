@@ -29,34 +29,28 @@ public class DeliveryRecordServiceImpl implements DeliveryRecordService {
 
     @Override
     public DeliveryRecord createDeliveryRecord(DeliveryRecord record) {
-        Contract contract = record.getContract();
-
-        if (contract == null || contract.getId() == null) {
-            throw new IllegalArgumentException("Delivery record must be linked to a valid contract");
-        }
-
-        Contract existingContract = contractRepository.findById(contract.getId())
-                .orElseThrow(() -> new RuntimeException("Contract not found"));
-
         if (record.getDeliveryDate().isAfter(LocalDate.now())) {
             throw new IllegalArgumentException("Delivery date cannot be in the future");
         }
 
-        record.setContract(existingContract);
+        Contract contract = contractRepository.findById(record.getContract().getId())
+                .orElseThrow(() -> new RuntimeException("Contract not found"));
+
+        record.setContract(contract);
 
         return deliveryRecordRepository.save(record);
-    }
-
-    @Override
-    public DeliveryRecord getRecordById(Long id) {
-        return deliveryRecordRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Delivery record not found"));
     }
 
     @Override
     public DeliveryRecord getLatestDeliveryRecord(Long contractId) {
         return deliveryRecordRepository.findFirstByContractIdOrderByDeliveryDateDesc(contractId)
                 .orElseThrow(() -> new RuntimeException("No delivery records found for contract"));
+    }
+
+    @Override
+    public DeliveryRecord getRecordById(Long id) {
+        return deliveryRecordRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Delivery record not found"));
     }
 
     @Override

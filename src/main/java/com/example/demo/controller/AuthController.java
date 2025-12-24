@@ -1,49 +1,43 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.AuthRequest;
-import com.example.demo.dto.AuthResponse;
-import com.example.demo.security.JwtTokenProvider;
+import com.example.demo.dto.AuthRequestDto;
+import com.example.demo.dto.AuthResponseDto;
 import com.example.demo.entity.User;
-import com.example.demo.repository.UserRepository;
-import org.springframework.http.ResponseEntity;
+import com.example.demo.security.JwtTokenProvider;
+import com.example.demo.service.UserService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
-
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public AuthController(UserRepository userRepository,
-                          JwtTokenProvider jwtTokenProvider) {
-        this.userRepository = userRepository;
+    public AuthController(UserService userService,
+                          JwtTokenProvider jwtTokenProvider,
+                          BCryptPasswordEncoder passwordEncoder) {
+        this.userService = userService;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody AuthRequest request) {
+    @PostMapping("/login")
+    public AuthResponseDto login(@RequestBody AuthRequestDto request) {
 
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Email already exists");
+        User user = userService.getUserByEmail(request.getEmail());
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid credentials");
         }
 
-        User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .roles(Set.of("ROLE_USER"))
-                .build();
-
-        userRepository.save(user);
-
         String token = jwtTokenProvider.generateToken(
-                user.getId(), user.getEmail(), user.getRoles()
+                user.getEmail(),
+                user.getRoles()
         );
 
-        return ResponseEntity.ok(new AuthResponse(token));
+        return new AuthResponseDto(token);
     }
 }

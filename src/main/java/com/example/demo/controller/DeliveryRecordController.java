@@ -1,28 +1,36 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.DeliveryRecordDto;
+import com.example.demo.entity.Contract;
 import com.example.demo.entity.DeliveryRecord;
+import com.example.demo.service.ContractService;
 import com.example.demo.service.DeliveryRecordService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/api/deliveries")
+@RequestMapping("/deliveries")
 public class DeliveryRecordController {
 
-    private final DeliveryRecordService deliveryRecordService;
+    private final DeliveryRecordService deliveryService;
+    private final ContractService contractService;
 
-    public DeliveryRecordController(DeliveryRecordService deliveryRecordService) {
-        this.deliveryRecordService = deliveryRecordService;
+    public DeliveryRecordController(DeliveryRecordService deliveryService,
+                                    ContractService contractService) {
+        this.deliveryService = deliveryService;
+        this.contractService = contractService;
     }
 
     @PostMapping
-    public DeliveryRecord create(@RequestBody DeliveryRecord record) {
-        return deliveryRecordService.createDeliveryRecord(record);
-    }
+    public DeliveryRecord add(@RequestBody DeliveryRecordDto dto) {
 
-    @GetMapping("/contract/{contractId}")
-    public List<DeliveryRecord> getByContract(@PathVariable Long contractId) {
-        return deliveryRecordService.getDeliveryRecordsForContract(contractId);
+        Contract contract = contractService.getContractById(dto.getContractId());
+
+        DeliveryRecord record = DeliveryRecord.builder()
+                .contract(contract)
+                .deliveryDate(dto.getDeliveryDate())
+                .deliveredOnTime(dto.isDeliveredOnTime())
+                .build();
+
+        return deliveryService.addDeliveryRecord(record);
     }
 }

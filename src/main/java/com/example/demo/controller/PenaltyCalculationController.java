@@ -1,28 +1,38 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.PenaltyCalculationDto;
+import com.example.demo.entity.Contract;
 import com.example.demo.entity.PenaltyCalculation;
+import com.example.demo.service.ContractService;
 import com.example.demo.service.PenaltyCalculationService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/api/penalties")
+@RequestMapping("/penalties")
 public class PenaltyCalculationController {
 
-    private final PenaltyCalculationService penaltyCalculationService;
+    private final PenaltyCalculationService service;
+    private final ContractService contractService;
 
-    public PenaltyCalculationController(PenaltyCalculationService penaltyCalculationService) {
-        this.penaltyCalculationService = penaltyCalculationService;
+    public PenaltyCalculationController(PenaltyCalculationService service,
+                                        ContractService contractService) {
+        this.service = service;
+        this.contractService = contractService;
     }
 
-    @PostMapping("/{contractId}")
-    public PenaltyCalculation calculate(@PathVariable Long contractId) {
-        return penaltyCalculationService.calculatePenalty(contractId);
-    }
+    @PostMapping
+    public PenaltyCalculation calculate(@RequestBody PenaltyCalculationDto dto) {
 
-    @GetMapping("/contract/{contractId}")
-    public List<PenaltyCalculation> getByContract(@PathVariable Long contractId) {
-        return penaltyCalculationService.getCalculationsForContract(contractId);
+        Contract contract = contractService.getContractById(dto.getContractId());
+
+        PenaltyCalculation penalty = PenaltyCalculation.builder()
+                .contract(contract)
+                .totalPenalty(dto.getTotalPenalty())
+                .calculatedDate(LocalDate.now())
+                .build();
+
+        return service.savePenalty(penalty);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.demo.security;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotationConfigurationException;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -21,32 +22,44 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+            // Disable CSRF for REST APIs
             .csrf(csrf -> csrf.disable())
+
+            // Stateless session because JWT is used
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+
+            // Authorization rules
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(new AntPathRequestMatcher("/auth/**")).permitAll()
+                .requestMatchers(
+                    new AntPathRequestMatcher("/auth/**")
+                ).permitAll()
                 .anyRequest().authenticated()
             );
 
-        http.addFilterBefore(jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter.class);
+        // Add JWT filter
+        http.addFilterBefore(
+            jwtAuthenticationFilter,
+            UsernamePasswordAuthenticationFilter.class
+        );
 
         return http.build();
     }
 
+    // Password encoder
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // Authentication manager
     @Bean
     public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
+            AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
     }
 }

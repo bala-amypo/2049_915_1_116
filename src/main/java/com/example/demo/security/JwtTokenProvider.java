@@ -1,47 +1,66 @@
 package com.example.demo.security;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+
 import org.springframework.stereotype.Component;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
-    
-    private String jwtSecret;
-    private Long jwtExpirationMs;
-    
-    public String generateToken(Long userId, String email, Set<String> roles) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userId);
-        claims.put("email", email);
-        claims.put("roles", String.join(",", roles));
-        
-        // Simple token generation for testing
-        String payload = userId + ":" + email + ":" + String.join(",", roles);
-        return Base64.getEncoder().encodeToString(payload.getBytes());
+
+    // Secret key (for demo; in real projects keep in application.properties)
+    private final String jwtSecret = "mySecretKey";
+
+    // Token validity: 1 hour
+    private final long jwtExpirationMs = 60 * 60 * 1000;
+
+    // ✅ Generate token
+    public String generateToken(String username) {
+
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
+
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .compact();
     }
-    
+
+    // ✅ Extract username from token
+    public String getUsernameFromToken(String token) {
+
+        Claims claims = Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();
+    }
+
+    // ✅ Validate token
     public boolean validateToken(String token) {
         try {
-            Base64.getDecoder().decode(token);
+            Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token);
             return true;
-        } catch (Exception e) {
-            return false;
+        } catch (ExpiredJwtException e) {
+            System.out.println("JWT expired");
+        } catch (MalformedJwtException e) {
+            System.out.println("Invalid JWT");
+        } catch (UnsupportedJwtException e) {
+            System.out.println("Unsupported JWT");
+        } catch (IllegalArgumentException e) {
+            System.out.println("JWT claims empty");
         }
-    }
-    
-    public Map<String, Object> getClaims(String token) {
-        String decoded = new String(Base64.getDecoder().decode(token));
-        String[] parts = decoded.split(":");
-        
-        Map<String, Object> claims = new HashMap<>();
-        if (parts.length >= 3) {
-            claims.put("userId", parts[0]);
-            claims.put("email", parts[1]);
-            claims.put("roles", parts[2]);
-        }
-        return claims;
+        return false;
     }
 }

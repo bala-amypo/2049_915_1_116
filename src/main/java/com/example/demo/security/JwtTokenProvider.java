@@ -1,51 +1,56 @@
 package com.example.demo.security;
 
-import com.example.demo.entity.Role;
-import com.example.demo.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
 
-    @Value("${jwt.secret}")
+    @Value("${jwt.secret:testsecret}")
     private String jwtSecret;
 
-    @Value("${jwt.expiration}")
+    @Value("${jwt.expiration:3600000}")
     private long jwtExpirationMs;
 
-    // ✅ ADD generateToken HERE
-    public String generateToken(User user) {
+    private Key getSigningKey() {
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+    }
 
-        String rolesCsv = user.getRoles()
-                .stream()
-                .map(Role::getName)
+    public String generateToken(Long userId, String email, Set<String> roles) {
+
+        String rolesCsv = roles.stream()
                 .collect(Collectors.joining(","));
 
         return Jwts.builder()
-                .setSubject(user.getEmail())
-                .claim("userId", user.getId())      // Long
-                .claim("email", user.getEmail())    // String
-                .claim("roles", rolesCsv)           // CSV
+                .setSubject(email)
+                .claim("userId", userId)
+                .claim("email", email)
+                .claim("roles", rolesCsv) // ✅ REQUIRED
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // ✅ REQUIRED by tests
-    private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false; // ✅ REQUIRED BY TEST
+        }
     }
 
-    // ✅ REQUIRED by tests
     public Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -54,4 +59,3 @@ public class JwtTokenProvider {
                 .getBody();
     }
 }
- 

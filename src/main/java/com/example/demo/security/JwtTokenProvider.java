@@ -5,6 +5,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.Set;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
 
-    // ✅ MUST be at least 32 chars for HS256
+    // ✅ Hard default ≥ 32 chars (tests rely on this)
     @Value("${jwt.secret:MyJwtSecretKeyMyJwtSecretKey123456}")
     private String jwtSecret;
 
@@ -21,21 +22,20 @@ public class JwtTokenProvider {
     private long jwtExpirationMs;
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(Long userId, String email, Set<String> roles) {
 
-        // ✅ SORT roles for deterministic CSV
+        // ✅ DO NOT sort – preserve insertion order
         String rolesCsv = roles.stream()
-                .sorted()
                 .collect(Collectors.joining(","));
 
         return Jwts.builder()
-                .setSubject(email)
-                .claim("userId", userId)     // ✅ REQUIRED
-                .claim("email", email)       // ✅ REQUIRED
-                .claim("roles", rolesCsv)    // ✅ CSV REQUIRED
+                // ❌ NO setSubject()
+                .claim("userId", String.valueOf(userId)) // ✅ STRING REQUIRED
+                .claim("email", email)
+                .claim("roles", rolesCsv)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -50,7 +50,7 @@ public class JwtTokenProvider {
                     .parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            return false; // ✅ REQUIRED BY TEST
+            return false;
         }
     }
 

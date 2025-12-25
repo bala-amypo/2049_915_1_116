@@ -58,23 +58,4 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
     }
-
-    public String generateToken(User user) {
-
-    String rolesCsv = user.getRoles()
-            .stream()
-            .map(Role::getName)
-            .collect(Collectors.joining(","));
-
-    return Jwts.builder()
-            .setSubject(user.getEmail())
-            .claim("userId", user.getId())          // MUST be Long
-            .claim("email", user.getEmail())        // MUST be separate
-            .claim("roles", rolesCsv)               // MUST be CSV String
-            .setIssuedAt(new Date())
-            .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-            .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-            .compact();
-}
-
 }

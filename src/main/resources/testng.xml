@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<suite name="DemoFullProjectTestSuite">
-    <test name="DemoFullProjectTest">
-        <classes>
-            <class name="com.example.demo.DemoFullProjectTest"/>
-        </classes>
-    </test>
-</suite>

@@ -12,14 +12,14 @@ import org.springframework.context.annotation.Configuration;
 import java.util.List;
 
 @Configuration
-public class OpenApiConfig {
+public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
 
         // Production Server
         Server productionServer = new Server();
-        productionServer.setUrl("https://9064.408procr.amypo.ai/");
+        productionServer.setUrl("https://9096.408procr.amypo.ai/");
         productionServer.setDescription("Production Server");
 
         // API Information

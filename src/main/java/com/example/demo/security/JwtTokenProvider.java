@@ -2,7 +2,9 @@ package com.example.demo.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import java.security.Key;
 import java.util.Date;
 import java.util.Set;
@@ -10,39 +12,48 @@ import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
-    
-    private String jwtSecret = "mySecretKey";
-    private Long jwtExpirationMs = 86400000L;
-    
+
+    @Value("${jwt.secret:testsecret}")
+    private String jwtSecret;
+
+    @Value("${jwt.expiration:3600000}")
+    private long jwtExpirationMs;
+
+    private Key getSigningKey() {
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+    }
+
     public String generateToken(Long userId, String email, Set<String> roles) {
-        Date expiryDate = new Date(System.currentTimeMillis() + jwtExpirationMs);
-        Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-        
+
+        String rolesCsv = roles.stream()
+                .collect(Collectors.joining(","));
+
         return Jwts.builder()
                 .setSubject(email)
                 .claim("userId", userId)
                 .claim("email", email)
-                .claim("roles", String.join(",", roles))
+                .claim("roles", rolesCsv) // ✅ REQUIRED
                 .setIssuedAt(new Date())
-                .setExpiration(expiryDate)
-                .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
-    
+
     public boolean validateToken(String token) {
         try {
-            Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            return false;
+            return false; // ✅ REQUIRED BY TEST
         }
     }
-    
+
     public Claims getClaims(String token) {
-        Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();

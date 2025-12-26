@@ -1,0 +1,10 @@
+package com.example.demo.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface VendorTierRepository extends JpaRepository<Object, Long> {
+    // This is a placeholder repository as mentioned in requirements
+    // but no VendorTier entity was defined in the specification
+}

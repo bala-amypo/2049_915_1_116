@@ -1,93 +1,57 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "penalty_calculations")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PenaltyCalculation {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "delivery_record_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contract_id", nullable = false)
+    private Contract contract;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_record_id")
     private DeliveryRecord deliveryRecord;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "breach_rule_id", nullable = false)
     private BreachRule breachRule;
 
     @Column(nullable = false)
-    private Integer delayDays;
+    private Integer daysDelayed;
 
     @Column(nullable = false, precision = 19, scale = 2)
-    private BigDecimal penaltyAmount;
+    private BigDecimal calculatedPenalty;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime calculatedAt;
 
-    // 🔹 No-arg constructor (REQUIRED by JPA)
-    public PenaltyCalculation() {
-    }
-
-    // 🔹 All-args constructor
-    public PenaltyCalculation(DeliveryRecord deliveryRecord,
-                              BreachRule breachRule,
-                              Integer delayDays,
-                              BigDecimal penaltyAmount) {
+    public PenaltyCalculation(Contract contract, DeliveryRecord deliveryRecord, BreachRule breachRule,
+                             Integer daysDelayed, BigDecimal calculatedPenalty) {
+        this.contract = contract;
         this.deliveryRecord = deliveryRecord;
         this.breachRule = breachRule;
-        this.delayDays = delayDays;
-        this.penaltyAmount = penaltyAmount;
-        this.calculatedAt = LocalDateTime.now();
+        this.daysDelayed = daysDelayed;
+        this.calculatedPenalty = calculatedPenalty;
     }
 
-    // 🔹 Getters & Setters (THIS FIXES YOUR ERROR)
-
-    public Long getId() {
-        return id;
-    }
-
-    public DeliveryRecord getDeliveryRecord() {
-        return deliveryRecord;
-    }
-
-    public void setDeliveryRecord(DeliveryRecord deliveryRecord) {
-        this.deliveryRecord = deliveryRecord;
-    }
-
-    public BreachRule getBreachRule() {
-        return breachRule;
-    }
-
-    public void setBreachRule(BreachRule breachRule) {
-        this.breachRule = breachRule;
-    }
-
-    public Integer getDelayDays() {
-        return delayDays;
-    }
-
-    public void setDelayDays(Integer delayDays) {
-        this.delayDays = delayDays;
-    }
-
-    public BigDecimal getPenaltyAmount() {
-        return penaltyAmount;
-    }
-
-    public void setPenaltyAmount(BigDecimal penaltyAmount) {
-        this.penaltyAmount = penaltyAmount;
-    }
-
-    public LocalDateTime getCalculatedAt() {
-        return calculatedAt;
-    }
-
-    public void setCalculatedAt(LocalDateTime calculatedAt) {
-        this.calculatedAt = calculatedAt;
+    @PrePersist
+    protected void onCreate() {
+        calculatedAt = LocalDateTime.now();
     }
 }

@@ -65,15 +65,15 @@ public class ContractServiceImpl implements ContractService {
         if (latestDelivery.isPresent()) {
             DeliveryRecord delivery = latestDelivery.get();
             if (delivery.getDeliveryDate().isAfter(contract.getAgreedDeliveryDate())) {
-                contract.setStatus("BREACHED");
+                contract.setStatus(Contract.ContractStatus.BREACHED);
             } else {
-                contract.setStatus("COMPLETED");
+                contract.setStatus(Contract.ContractStatus.COMPLETED);
             }
         } else {
             if (LocalDate.now().isAfter(contract.getAgreedDeliveryDate())) {
-                contract.setStatus("BREACHED");
+                contract.setStatus(Contract.ContractStatus.BREACHED);
             } else {
-                contract.setStatus("ACTIVE");
+                contract.setStatus(Contract.ContractStatus.ACTIVE);
             }
         }
         contractRepository.save(contract);

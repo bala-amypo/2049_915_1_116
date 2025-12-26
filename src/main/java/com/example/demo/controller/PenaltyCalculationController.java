@@ -4,30 +4,34 @@ import com.example.demo.entity.PenaltyCalculation;
 import com.example.demo.service.PenaltyCalculationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/penalties")
+@RequestMapping("/api/calculations")
 public class PenaltyCalculationController {
-    
+
     private final PenaltyCalculationService penaltyCalculationService;
-    
+
     public PenaltyCalculationController(PenaltyCalculationService penaltyCalculationService) {
         this.penaltyCalculationService = penaltyCalculationService;
     }
-    
-    @PostMapping("/calculate/{contractId}")
+
+    @PostMapping("/contract/{contractId}")
     public ResponseEntity<PenaltyCalculation> calculatePenalty(@PathVariable Long contractId) {
-        return ResponseEntity.ok(penaltyCalculationService.calculatePenalty(contractId));
+        PenaltyCalculation calculation = penaltyCalculationService.calculatePenalty(contractId);
+        return ResponseEntity.ok(calculation);
     }
-    
+
     @GetMapping("/{id}")
-    public ResponseEntity<PenaltyCalculation> getCalculation(@PathVariable Long id) {
-        return ResponseEntity.ok(penaltyCalculationService.getCalculationById(id));
+    public ResponseEntity<PenaltyCalculation> getPenaltyCalculation(@PathVariable Long id) {
+        PenaltyCalculation calculation = penaltyCalculationService.getCalculationById(id);
+        return ResponseEntity.ok(calculation);
     }
-    
+
     @GetMapping("/contract/{contractId}")
     public ResponseEntity<List<PenaltyCalculation>> getCalculationsForContract(@PathVariable Long contractId) {
-        return ResponseEntity.ok(penaltyCalculationService.getCalculationsForContract(contractId));
+        List<PenaltyCalculation> calculations = penaltyCalculationService.getCalculationsForContract(contractId);
+        return ResponseEntity.ok(calculations);
     }
 }

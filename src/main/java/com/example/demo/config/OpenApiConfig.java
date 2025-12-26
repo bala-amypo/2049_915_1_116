@@ -22,23 +22,16 @@ public class SwaggerConfig {
         productionServer.setUrl("https://9096.408procr.amypo.ai/");
         productionServer.setDescription("Production Server");
 
-        // API Information
-        Info apiInfo = new Info()
-                .title("Demo API")
-                .version("1.0")
-                .description("Demo Application APIs");
-
-        // JWT Security Scheme
-        SecurityScheme jwtScheme = new SecurityScheme()
-                .type(SecurityScheme.Type.HTTP)
-                .scheme("bearer")
-                .bearerFormat("JWT");
-
-        return new OpenAPI()
-                .info(apiInfo)
-                .servers(List.of(productionServer)) // ✅ ONLY production server
-                .addSecurityItem(new SecurityRequirement().addList("BearerAuth"))
-                .components(new Components()
-                        .addSecuritySchemes("BearerAuth", jwtScheme));
+         .info(new Info()
+                        .title("Contract Management API")
+                        .version("1.0")
+                        .description("API for managing contracts and breach calculations"))
+                .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
+                .components(new io.swagger.v3.oas.models.Components()
+                        .addSecuritySchemes("Bearer Authentication",
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")));
     }
 }

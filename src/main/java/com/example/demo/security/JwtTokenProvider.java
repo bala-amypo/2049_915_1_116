@@ -1,50 +1,47 @@
 package com.example.demo.security;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
-import java.security.Key;
+
 import java.util.Date;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
-    
-    private String jwtSecret = "mySecretKey";
-    private Long jwtExpirationMs = 86400000L;
-    
+
+    private static final String SECRET_KEY = "mysecretkey12345678901234567890";
+    private static final long EXPIRATION_TIME = 86400000; // 1 day
+
+    // ✅ MATCHES AuthController
     public String generateToken(Long userId, String email, Set<String> roles) {
-        Date expiryDate = new Date(System.currentTimeMillis() + jwtExpirationMs);
-        Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-        
         return Jwts.builder()
                 .setSubject(email)
                 .claim("userId", userId)
-                .claim("email", email)
-                .claim("roles", String.join(",", roles))
+                .claim("roles", roles)
                 .setIssuedAt(new Date())
-                .setExpiration(expiryDate)
-                .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                // ✅ OLD-style signWith (no Key object)
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
     }
-    
+
+    public Claims getClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(SECRET_KEY)
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public String getEmailFromToken(String token) {
+        return getClaims(token).getSubject();
+    }
+
     public boolean validateToken(String token) {
         try {
-            Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            getClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
-    }
-    
-    public Claims getClaims(String token) {
-        Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
     }
 }

@@ -47,7 +47,7 @@ public class Contract {
         this.baseContractValue = baseContractValue;
     }
 
-    // Builder pattern
+    
     public static ContractBuilder builder() {
         return new ContractBuilder();
     }
@@ -120,7 +120,7 @@ public class Contract {
         updatedAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
+    
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

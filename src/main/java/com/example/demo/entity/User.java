@@ -40,7 +40,7 @@ public class User {
         }
     }
 
-    // Builder pattern
+    
     public static UserBuilder builder() {
         return new UserBuilder();
     }
@@ -101,8 +101,7 @@ public class User {
         }
     }
 
-    // Getters and Setters
-    public Long getId() { return id; }
+     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
     public String getEmail() { return email; }

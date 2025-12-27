@@ -27,7 +27,7 @@ public class DeliveryRecord {
         this.notes = notes;
     }
 
-    // Builder pattern
+    
     public static DeliveryRecordBuilder builder() {
         return new DeliveryRecordBuilder();
     }
@@ -68,7 +68,7 @@ public class DeliveryRecord {
         }
     }
 
-    // Getters and Setters
+    
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

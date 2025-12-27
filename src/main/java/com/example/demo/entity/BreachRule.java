@@ -32,7 +32,7 @@ public class BreachRule {
         this.maxPenaltyPercentage = maxPenaltyPercentage;
     }
 
-    // Builder pattern
+    
     public static BreachRuleBuilder builder() {
         return new BreachRuleBuilder();
     }

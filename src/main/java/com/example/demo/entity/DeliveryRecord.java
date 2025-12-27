@@ -6,7 +6,6 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "delivery_records")
 @Getter
 @Setter
 @Builder
@@ -21,6 +20,5 @@ public class DeliveryRecord {
     private LocalDate deliveryDate;
 
     @ManyToOne
-    @JoinColumn(name = "contract_id")
     private Contract contract;
 }

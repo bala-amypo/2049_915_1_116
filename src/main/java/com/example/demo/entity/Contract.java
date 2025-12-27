@@ -3,10 +3,10 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "contracts")
 @Getter
 @Setter
 @Builder
@@ -18,15 +18,11 @@ public class Contract {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
     private String contractNumber;
 
-    @Column(nullable = false)
-    private double baseContractValue;
+    private BigDecimal baseContractValue;
 
-    @Column(nullable = false)
-    private String status; // ACTIVE, CLOSED, etc.
+    private String status;
 
-    @Column(nullable = false)
     private LocalDate agreedDeliveryDate;
 }

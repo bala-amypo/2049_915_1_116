@@ -3,6 +3,8 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "breach_rules")
 @Getter
@@ -16,9 +18,24 @@ public class BreachRule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private double penaltyPerDay;
+    @Column(nullable = false, unique = true)
+    private String ruleName;
 
-    private double maxPenaltyPercentage;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal penaltyPerDay;
 
+    /**
+     * IMPORTANT:
+     * Wrapper Double (NOT primitive double)
+     * ✔ allows null checks
+     * ✔ fixes == null / != null compiler errors
+     */
+    @Column(nullable = false)
+    private Double maxPenaltyPercentage;
+
+    @Column(nullable = false)
     private boolean active;
+
+    @Column(nullable = false)
+    private boolean isDefaultRule;
 }

@@ -1,3 +1,9 @@
+package com.example.demo.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.math.BigDecimal;
+
 @Entity
 @Getter
 @Setter
@@ -11,9 +17,10 @@ public class PenaltyCalculation {
     private Long id;
 
     @ManyToOne
-    private Contract contract;
-
-    private Integer daysDelayed;
+    @JoinColumn(name = "breach_report_id")
+    private BreachReport breachReport;
 
     private BigDecimal calculatedPenalty;
+
+    private String calculationStatus;
 }

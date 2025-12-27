@@ -1,3 +1,9 @@
+package com.example.demo.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.math.BigDecimal;
+
 @Entity
 @Getter
 @Setter
@@ -10,11 +16,9 @@ public class BreachRule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private BigDecimal penaltyPerDay;
+    private String ruleName;
 
-    private Double maxPenaltyPercentage;
+    private BigDecimal penaltyAmount;
 
-    private boolean active;
-
-    private boolean isDefaultRule;
+    private String description;
 }

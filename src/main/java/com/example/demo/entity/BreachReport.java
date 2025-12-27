@@ -1,3 +1,9 @@
+package com.example.demo.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -10,7 +16,13 @@ public class BreachReport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer daysDelayed;
+    private String reportName;
 
-    private String remarks;
+    private LocalDateTime reportDate;
+
+    @ManyToOne
+    @JoinColumn(name = "breach_rule_id")
+    private BreachRule breachRule;
+
+    private String status;
 }

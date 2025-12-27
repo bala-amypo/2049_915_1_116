@@ -1,10 +1,4 @@
-package com.example.demo.entity;
-
-import jakarta.persistence.*;
-import lombok.*;
-
 @Entity
-@Table(name = "penalty_calculations")
 @Getter
 @Setter
 @Builder
@@ -16,16 +10,10 @@ public class PenaltyCalculation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private long daysDelayed;
-
-    private double calculatedPenalty;
-
     @ManyToOne
-    private DeliveryRecord deliveryRecord;
+    private Contract contract;
 
-    @ManyToOne
-    private BreachRule breachRule;
+    private Integer daysDelayed;
 
-    @ManyToOne
-    private Contract contract;   // 🔥 REQUIRED
+    private BigDecimal calculatedPenalty;
 }

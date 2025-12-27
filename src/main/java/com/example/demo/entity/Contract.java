@@ -1,6 +1,6 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,7 +13,6 @@ public class Contract {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // ✅ ADD THIS FIELD
     @Column(name = "contract_number", unique = true, nullable = false)
     private String contractNumber;
 
@@ -37,7 +36,7 @@ public class Contract {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // ===== GETTERS & SETTERS =====
+    // Getters & Setters
 
     public Long getId() {
         return id;

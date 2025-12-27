@@ -1,20 +1,21 @@
 package com.example.demo.entity;
 
-import lombok.*;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "vendor_tiers")
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class VendorTier {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
+    @Column(nullable = false)
     private String tierName;
-    private Integer minScoreThreshold;
-    private Boolean active;
+
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getTierName() { return tierName; }
+    public void setTierName(String tierName) { this.tierName = tierName; }
 }

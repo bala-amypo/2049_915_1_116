@@ -3,6 +3,7 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -23,7 +24,7 @@ public class Contract {
 
     private LocalDate agreedDeliveryDate;
 
-    private Double baseContractValue;
+    private BigDecimal baseContractValue;
 
     @Enumerated(EnumType.STRING)
     private ContractStatus status;
@@ -31,6 +32,7 @@ public class Contract {
     public enum ContractStatus {
         ACTIVE,
         COMPLETED,
+        BREACHED,
         DELAYED,
         CANCELLED
     }

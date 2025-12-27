@@ -1,20 +1,24 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "breach_rules")
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class BreachRule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String ruleName;
+    private double penaltyPerDay;
 
-    @Column(nullable = false)
-    private double penaltyRate;
+    private double maxPenaltyPercentage;
 
-    // getters & setters
+    private boolean active;
 }

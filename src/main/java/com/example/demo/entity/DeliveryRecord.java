@@ -1,32 +1,26 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import lombok.*;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "delivery_records")
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DeliveryRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vendor_id")
-    private VendorTier vendor;
+    private LocalDate deliveryDate;
 
-    @Column(nullable = false)
-    private LocalDateTime deliveryTime;
-
-    @Column(nullable = false)
-    private boolean delayed;
-
-    @PrePersist
-    public void prePersist() {
-        if (deliveryTime == null) {
-            deliveryTime = LocalDateTime.now();
-        }
-    }
-
-    // getters & setters
+    @ManyToOne
+    @JoinColumn(name = "contract_id")
+    private Contract contract;
 }

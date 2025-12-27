@@ -3,20 +3,22 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Entity
-@Data
+@Table(name = "contracts")
+@Getter
+@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Contract {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String contractNumber;
-    private double baseContractValue;
-    private String status;
+    private LocalDate agreedDeliveryDate;
 
-    // Add other fields if your test uses them
+    private double contractValue;
 }

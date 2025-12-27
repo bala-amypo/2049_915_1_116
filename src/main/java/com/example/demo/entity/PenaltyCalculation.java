@@ -25,4 +25,7 @@ public class PenaltyCalculation {
 
     @ManyToOne
     private BreachRule breachRule;
+
+    @ManyToOne
+    private Contract contract;   // 🔥 REQUIRED
 }

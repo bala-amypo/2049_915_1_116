@@ -18,7 +18,15 @@ public class Contract {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDate agreedDeliveryDate;
+    @Column(nullable = false, unique = true)
+    private String contractNumber;
 
-    private double contractValue;
+    @Column(nullable = false)
+    private double baseContractValue;
+
+    @Column(nullable = false)
+    private String status; // ACTIVE, CLOSED, etc.
+
+    @Column(nullable = false)
+    private LocalDate agreedDeliveryDate;
 }

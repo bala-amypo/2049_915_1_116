@@ -1,50 +1,39 @@
 package com.example.demo.security;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
-import java.security.Key;
-import java.util.Date;
-import java.util.Set;
-import java.util.stream.Collectors;
+
+import java.util.List;
 
 @Component
 public class JwtTokenProvider {
-    
-    private String jwtSecret = "mySecretKey";
-    private Long jwtExpirationMs = 86400000L;
-    
-    public String generateToken(Long userId, String email, Set<String> roles) {
-        Date expiryDate = new Date(System.currentTimeMillis() + jwtExpirationMs);
-        Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-        
-        return Jwts.builder()
-                .setSubject(email)
-                .claim("userId", userId)
-                .claim("email", email)
-                .claim("roles", String.join(",", roles))
-                .setIssuedAt(new Date())
-                .setExpiration(expiryDate)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .compact();
-    }
-    
-    public boolean validateToken(String token) {
-        try {
-            Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
+
+    private final String SECRET_KEY = "secret-key";
+
+    public String resolveToken(HttpServletRequest request) {
+        String bearer = request.getHeader("Authorization");
+        if (bearer != null && bearer.startsWith("Bearer ")) {
+            return bearer.substring(7);
         }
+        return null;
     }
-    
-    public Claims getClaims(String token) {
-        Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
+
+    public Authentication getAuthentication(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token)
                 .getBody();
+
+        String username = claims.getSubject();
+
+        return new UsernamePasswordAuthenticationToken(
+                username,
+                null,
+                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
     }
 }

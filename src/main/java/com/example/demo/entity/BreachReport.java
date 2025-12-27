@@ -1,30 +1,28 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import lombok.*;
 
 @Entity
 @Table(name = "breach_reports")
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class BreachReport {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "delivery_id")
-    private DeliveryRecord deliveryRecord;
+    private long daysDelayed;
 
-    @Column(nullable = false)
-    private String description;
+    private double penaltyAmount;
 
-    @Column(nullable = false)
-    private LocalDateTime reportedAt;
+    @ManyToOne
+    private PenaltyCalculation penaltyCalculation;
 
-    @PrePersist
-    public void prePersist() {
-        reportedAt = LocalDateTime.now();
-    }
-
-    // getters & setters
+    @ManyToOne
+    private Contract contract;   // 🔥 REQUIRED
 }

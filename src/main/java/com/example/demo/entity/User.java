@@ -1,3 +1,9 @@
+package com.example.demo.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -10,9 +16,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String email;
+    private String username;
 
     private String password;
+
+    private String email;
 
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<String> roles;

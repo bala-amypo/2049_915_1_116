@@ -9,11 +9,12 @@ import java.util.List;
 @Configuration
 public class OpenApiConfig {
 
-  @Bean
-public OpenAPI customOpenAPI() {
-    return new OpenAPI()
-            .servers(List.of(
-                    new Server().url("http://localhost:8080"),
-                    new Server().url("https://9064.408procr.amypo.ai/")
-            ));
+    @Bean
+    public OpenAPI customOpenAPI() {
+        return new OpenAPI()
+                // You need to change the port as per your server
+                .servers(List.of(
+                        new Server().url("https://9064.408procr.amypo.ai/")
+                ));
+        }
 }

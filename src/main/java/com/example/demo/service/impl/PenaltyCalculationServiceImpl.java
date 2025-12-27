@@ -7,14 +7,27 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 public class PenaltyCalculationServiceImpl implements PenaltyCalculationService {
 
-    private ContractRepository contractRepository;
-    private DeliveryRecordRepository deliveryRecordRepository;
-    private BreachRuleRepository breachRuleRepository;
-    private PenaltyCalculationRepository penaltyCalculationRepository;
+    private final ContractRepository contractRepository;
+    private final DeliveryRecordRepository deliveryRecordRepository;
+    private final BreachRuleRepository breachRuleRepository;
+    private final PenaltyCalculationRepository penaltyCalculationRepository;
+
+    public PenaltyCalculationServiceImpl(
+            ContractRepository contractRepository,
+            DeliveryRecordRepository deliveryRecordRepository,
+            BreachRuleRepository breachRuleRepository,
+            PenaltyCalculationRepository penaltyCalculationRepository) {
+
+        this.contractRepository = contractRepository;
+        this.deliveryRecordRepository = deliveryRecordRepository;
+        this.breachRuleRepository = breachRuleRepository;
+        this.penaltyCalculationRepository = penaltyCalculationRepository;
+    }
 
     @Override
     public PenaltyCalculation calculatePenalty(Long contractId) {
@@ -22,34 +35,32 @@ public class PenaltyCalculationServiceImpl implements PenaltyCalculationService 
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new RuntimeException("Contract not found"));
 
-        DeliveryRecord deliveryRecord =
-                deliveryRecordRepository.findFirstByContractIdOrderByDeliveryDateDesc(contractId)
-                        .orElseThrow(() -> new RuntimeException("No delivery record"));
+        DeliveryRecord delivery = deliveryRecordRepository
+                .findFirstByContractIdOrderByDeliveryDateDesc(contractId)
+                .orElseThrow(() -> new RuntimeException("Delivery record not found"));
 
-        BreachRule rule =
-                breachRuleRepository.findFirstByActiveTrueOrderByIsDefaultRuleDesc()
-                        .orElseThrow(() -> new RuntimeException("No active breach rule"));
+        BreachRule rule = breachRuleRepository
+                .findFirstByActiveTrueOrderByIsDefaultRuleDesc()
+                .orElseThrow(() -> new RuntimeException("Breach rule not found"));
 
         long daysDelayed = ChronoUnit.DAYS.between(
                 contract.getAgreedDeliveryDate(),
-                deliveryRecord.getDeliveryDate()
+                delivery.getDeliveryDate()
         );
 
         if (daysDelayed < 0) {
             daysDelayed = 0;
         }
 
-        // penalty = daysDelayed * penaltyPerDay
         BigDecimal calculatedPenalty =
-                rule.getPenaltyPerDay().multiply(BigDecimal.valueOf(daysDelayed));
+                rule.getPenaltyPerDay()
+                        .multiply(BigDecimal.valueOf(daysDelayed));
 
-        // maxPenalty = baseContractValue * (maxPenaltyPercentage / 100)
         BigDecimal maxPenalty =
                 contract.getBaseContractValue()
                         .multiply(BigDecimal.valueOf(rule.getMaxPenaltyPercentage()))
                         .divide(BigDecimal.valueOf(100));
 
-        // apply cap
         if (calculatedPenalty.compareTo(maxPenalty) > 0) {
             calculatedPenalty = maxPenalty;
         }
@@ -64,8 +75,7 @@ public class PenaltyCalculationServiceImpl implements PenaltyCalculationService 
     }
 
     @Override
-    public PenaltyCalculation getCalculationById(Long id) {
-        return penaltyCalculationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Calculation not found"));
+    public List<PenaltyCalculation> getCalculationsForContract(Long contractId) {
+        return penaltyCalculationRepository.findByContractId(contractId);
     }
 }

@@ -1,55 +1,31 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.AuthRequest;
-import com.example.demo.dto.AuthResponse;
-import com.example.demo.entity.User;
-import com.example.demo.repository.UserRepository;
-import com.example.demo.security.JwtTokenProvider;
+import com.example.demo.dto.AuthRequestDto;
+import com.example.demo.dto.AuthResponseDto;
+import com.example.demo.dto.RegisterRequestDto;
+import com.example.demo.service.AuthService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-    
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider tokenProvider;
-    
-    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.tokenProvider = tokenProvider;
+
+    private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
-    
+
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody AuthRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            return ResponseEntity.badRequest().body("Email already exists");
-        }
-        
-        User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .roles(Set.of("ROLE_USER"))
-                .build();
-        
-        user = userRepository.save(user);
-        String token = tokenProvider.generateToken(user.getId(), user.getEmail(), user.getRoles());
-        
-        return ResponseEntity.ok(new AuthResponse(token, user.getEmail()));
+    public ResponseEntity<AuthResponseDto> register(@RequestBody RegisterRequestDto request) {
+        AuthResponseDto response = authService.register(request);
+        return ResponseEntity.ok(response);
     }
-    
+
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest request) {
-        return userRepository.findByEmail(request.getEmail())
-                .filter(user -> passwordEncoder.matches(request.getPassword(), user.getPassword()))
-                .<ResponseEntity<?>>map(user -> {
-                    String token = tokenProvider.generateToken(user.getId(), user.getEmail(), user.getRoles());
-                    return ResponseEntity.ok(new AuthResponse(token, user.getEmail()));
-                })
-                .orElse(ResponseEntity.badRequest().body("Invalid credentials"));
+    public ResponseEntity<AuthResponseDto> login(@RequestBody AuthRequestDto request) {
+        AuthResponseDto response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 }

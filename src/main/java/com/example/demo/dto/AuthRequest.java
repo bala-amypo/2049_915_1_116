@@ -1,9 +1,9 @@
-package com.example.demo.dto;
-
-import lombok.Data;
-
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class AuthRequest {
+
     private String email;
     private String password;
 }

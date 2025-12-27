@@ -1,39 +1,81 @@
 package com.example.demo.security;
 
-import io.jsonwebtoken.*;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Date;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
 
-    private final String SECRET_KEY = "secret-key";
+    @Value("${app.jwt.secret:test-secret}")
+    private String jwtSecret;
 
-    public String resolveToken(HttpServletRequest request) {
-        String bearer = request.getHeader("Authorization");
-        if (bearer != null && bearer.startsWith("Bearer ")) {
-            return bearer.substring(7);
-        }
-        return null;
+    @Value("${app.jwt.expiration-ms:3600000}")
+    private long jwtExpirationMs;
+
+    /**
+     * Generate JWT token with userId, email and roles
+     */
+    public String generateToken(Long userId, String email, Set<String> roles) {
+        String rolesCsv = roles == null
+                ? ""
+                : roles.stream().collect(Collectors.joining(","));
+
+        return Jwts.builder()
+                .claim("userId", userId)
+                .claim("email", email)
+                .claim("roles", rolesCsv)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .compact();
     }
 
-    public Authentication getAuthentication(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(SECRET_KEY)
+    /**
+     * Validate JWT token
+     */
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser()
+                    .setSigningKey(jwtSecret)
+                    .parseClaimsJws(token);
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    /**
+     * Extract claims from token
+     */
+    public Claims getClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(jwtSecret)
                 .parseClaimsJws(token)
                 .getBody();
+    }
 
-        String username = claims.getSubject();
+    /**
+     * Helper methods (optional but useful)
+     */
+    public Long getUserIdFromToken(String token) {
+        Claims claims = getClaims(token);
+        Object id = claims.get("userId");
+        return id == null ? null : Long.valueOf(String.valueOf(id));
+    }
 
-        return new UsernamePasswordAuthenticationToken(
-                username,
-                null,
-                List.of(new SimpleGrantedAuthority("ROLE_USER"))
-        );
+    public String getEmailFromToken(String token) {
+        return String.valueOf(getClaims(token).get("email"));
+    }
+
+    public Set<String> getRolesFromToken(String token) {
+        String roles = String.valueOf(getClaims(token).get("roles"));
+        return Set.of(roles.split(","));
     }
 }

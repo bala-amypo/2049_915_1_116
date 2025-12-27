@@ -2,14 +2,12 @@ package com.example.demo.service.impl;
 
 import com.example.demo.entity.Contract;
 import com.example.demo.repository.ContractRepository;
-import com.example.demo.service.ContractService;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 
 @Service
-public class ContractServiceImpl implements ContractService {
+public class ContractServiceImpl {
 
     private final ContractRepository contractRepository;
 
@@ -17,21 +15,27 @@ public class ContractServiceImpl implements ContractService {
         this.contractRepository = contractRepository;
     }
 
-    @Override
-    public Contract saveContract(Contract contract) {
-        contract.setCreatedAt(LocalDateTime.now());
-        contract.setUpdatedAt(LocalDateTime.now());
+    public Contract createContract(Contract contract) {
         return contractRepository.save(contract);
     }
 
-    @Override
-    public List<Contract> getAllContracts() {
-        return contractRepository.findAll();
+    public Contract updateContract(long id, Contract contract) {
+        Optional<Contract> existing = contractRepository.findById(id);
+        if (existing.isPresent()) {
+            Contract c = existing.get();
+            c.setContractNumber(contract.getContractNumber());
+            c.setBaseContractValue(contract.getBaseContractValue());
+            c.setStatus(contract.getStatus());
+            return contractRepository.save(c);
+        }
+        return null;
     }
 
-    @Override
-    public Contract getContractById(Long id) {
-        return contractRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Contract not found"));
+    public void updateContractStatus(long id) {
+        Optional<Contract> existing = contractRepository.findById(id);
+        existing.ifPresent(c -> {
+            c.setStatus("UPDATED");
+            contractRepository.save(c);
+        });
     }
 }

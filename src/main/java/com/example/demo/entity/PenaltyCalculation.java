@@ -1,37 +1,34 @@
 package com.example.demo.entity;
 
-import lombok.*;
-import javax.persistence.*;
-import java.math.BigDecimal;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "penalty_calculations")
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class PenaltyCalculation {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "contract_id", nullable = false)
-    private Contract contract;
-    
-    private Integer daysDelayed;
-    private BigDecimal calculatedPenalty;
-    
+    @JoinColumn(name = "delivery_id")
+    private DeliveryRecord deliveryRecord;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "applied_rule_id")
-    private BreachRule appliedRule;
-    
-    @Column(name = "calculated_at")
+    @JoinColumn(name = "rule_id")
+    private BreachRule breachRule;
+
+    @Column(nullable = false)
+    private double penaltyAmount;
+
+    @Column(nullable = false)
     private LocalDateTime calculatedAt;
-    
+
     @PrePersist
-    protected void onCreate() {
+    public void prePersist() {
         calculatedAt = LocalDateTime.now();
     }
+
+    // getters & setters
 }

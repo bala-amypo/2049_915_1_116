@@ -20,10 +20,10 @@ public class JwtTokenProvider {
     private Long jwtExpirationMs;
 
     private SecretKey getSigningKey() {
-        // For testing purposes, pad short keys to meet minimum requirements
+        
         String key = jwtSecret;
         if (key.length() < 32) {
-            // Pad the key to meet minimum 256-bit requirement for HMAC-SHA256
+            
             key = key + "0".repeat(32 - key.length());
         }
         return Keys.hmacShaKeyFor(key.getBytes());
@@ -32,7 +32,7 @@ public class JwtTokenProvider {
     public String generateToken(Long userId, String email, Set<String> roles) {
         Date expiryDate = new Date(System.currentTimeMillis() + jwtExpirationMs);
         
-        // Convert roles set to comma-separated string
+        
         String rolesString = roles != null ? String.join(",", roles) : "";
 
         return Jwts.builder()

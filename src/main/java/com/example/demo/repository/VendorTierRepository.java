@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VendorTierRepository extends JpaRepository<VendorTier, Long> {
-    // Repository for VendorTier entity
+    
 }

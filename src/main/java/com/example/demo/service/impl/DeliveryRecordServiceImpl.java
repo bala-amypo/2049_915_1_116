@@ -18,7 +18,7 @@ public class DeliveryRecordServiceImpl implements DeliveryRecordService {
     private ContractRepository contractRepository;
     private DeliveryRecordRepository deliveryRecordRepository;
 
-    // ✅ REQUIRED for Spring & TestNG
+    
     @Autowired
     public DeliveryRecordServiceImpl(DeliveryRecordRepository deliveryRecordRepository,
                                      ContractRepository contractRepository) {
@@ -26,7 +26,7 @@ public class DeliveryRecordServiceImpl implements DeliveryRecordService {
         this.contractRepository = contractRepository;
     }
 
-    // ✅ Keep default constructor ONLY for TestNG reflection injection
+    
     public DeliveryRecordServiceImpl() {
     }
 
